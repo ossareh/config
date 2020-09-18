@@ -1,0 +1,3 @@
+---
+- name: ahuffman.resolv
+  src: https://github.com/ahuffman/ansible-resolv
