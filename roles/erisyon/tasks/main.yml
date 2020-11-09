@@ -1,24 +1,141 @@
 ---
-# apt action: https://docs.ansible.com/ansible/latest/modules/apt_module.html
-# pip action: https://docs.ansible.com/ansible/latest/modules/pip_module.html
-- name: configure an erisyon dev server
-  become: yes
-  tasks:
-  - name: upgrade installed packages
-    apt:
-      upgrade: yes
+- name: upgrade installed packages
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 3600
+    upgrade: "yes"
 
-  - name: install apt packages
-    apt:
-      update_cache: yes
-      cache_valid_time: 3600
-      state: present
-      name:  
-        - docker.io
-        - python3
-        - python3-pip
-  
-  - name: install pip packages
-    pip:
-      name:
-          - awscli
+# necessary for us to run >5.7 kernel for Photometrics Cameras
+- name: add kernal PPA for updated kernel
+  ansible.builtin.apt_repository:
+    repo: ppa:cappelikan/ppa
+
+# add key for nodesource repo
+- name: add apt key for nodesource repo
+  ansible.builtin.apt_key:
+    url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+
+# add node source repo
+- name: add nodesource repo
+  ansible.builtin.apt_repository:
+    repo: deb https://deb.nodesource.com/node_14.x focal main
+    filename: yarn
+
+# add key for yarn repo
+- name: add apt key for yarn repo
+  ansible.builtin.apt_key:
+    url: https://dl.yarnpkg.com/debian/pubkey.gpg
+
+# add yarn repo
+- name: add yarn repo
+  ansible.builtin.apt_repository:
+    repo: deb https://dl.yarnpkg.com/debian/ stable main
+    filename: yarn
+
+- name: install apt packages    
+  ansible.builtin.apt:
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+    name:  
+      # updated kernel
+      - linux-headers-5.8.0-23-generic
+      - linux-image-5.8.0-23-generic
+      - linux-modules-5.8.0-23-generic
+      # general
+      - curl
+      - nfs-common
+      - python3
+      - python3-pip
+      # for docker commmunity edition
+      - apt-transport-https
+      - ca-certificates
+      - software-properties-common
+      # for pyenv / python installations
+      - build-essential
+      - libbz2-dev
+      - libffi-dev
+      - liblzma-dev
+      - libncurses5-dev 
+      - libncursesw5-dev
+      - libreadline-dev
+      - libsqlite3-dev 
+      - libssl-dev
+      - llvm 
+      - make
+      - python-openssl
+      - tk-dev
+      - xz-utils
+      - zlib1g-dev
+      # for old-vega dev
+      - nodejs
+      - yarn
+
+- name: setup docker apt key
+  ansible.builtin.apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: setup docker community edition repo
+  ansible.builtin.apt_repository:
+    repo: deb https://download.docker.com/linux/ubuntu focal stable
+    state: present
+
+- name: install docker community edition package
+  ansible.builtin.apt:
+    state: present
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+
+- name: copy resolv.conf
+  ansible.builtin.copy:
+    src: resolv.conf
+    dest: /etc/resolv.conf
+    owner: root
+    group: root
+    mode: "0644"
+  register: resolvconf
+
+- name: restart systemd-resolvd
+  ansible.builtin.systemd:
+    name: systemd-resolved
+    state: restarted
+  when: resolvconf.changed
+
+- name: create ossareh user
+  ansible.builtin.user:
+    name: ossareh
+    comment: Mike Ossareh
+    append: yes
+    groups: users,docker
+
+- name: check for nfs mount
+  shell: df | grep ossareh/dev | wc -l
+  register: nfs_mounted
+    
+- name: create dev mountpoint
+  ansible.builtin.file:
+    path: /home/ossareh/dev
+    state: directory
+    mode: "0755"
+    owner: ossareh
+    group: ossareh
+  register: mountpoint
+  when: nfs_mounted.stdout == "0"
+
+- name: Mount an NFS volume
+  ansible.posix.mount:
+    src: devfs:/srv/ossareh
+    path: /home/ossareh/dev
+    opts: rw,sync,hard,intr,user,exec
+    state: mounted
+    fstype: nfs
+  when: mountpoint.changed or nfs_mounted.stdout == "0"
+
+- name: setup max user watches (vscode)
+  ansible.posix.sysctl:
+    name: fs.inotify.max_user_watches
+    value: '524288'
+    sysctl_file: /etc/sysctl.d/99-erisyon.conf

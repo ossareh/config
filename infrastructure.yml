@@ -1,0 +1,5 @@
+---
+- hosts: devfs
+  roles:
+    - file-server
+  

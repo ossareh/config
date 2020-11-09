@@ -1,3 +1,6 @@
 all:
-    hosts:
-        throwaway:
+  hosts:
+    erisyondev:
+      ansible_user: ossareh
+    devfs:
+      ansible_user: root

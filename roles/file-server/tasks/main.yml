@@ -1,0 +1,49 @@
+---
+- name: create ossareh user
+  ansible.builtin.user:
+    name: ossareh
+    comment: Mike Ossareh
+    shell: /bin/bash
+
+- name: add ssh key
+  ansible.posix.authorized_key:
+    user: ossareh
+    state: present
+    key: "{{ item }}"
+  with_file:
+    - keys/ssh/ossareh.pub
+
+- name: create ossareh share
+  ansible.builtin.file:
+    path: /srv/ossareh
+    state: directory
+    mode: "0777"
+    owner: root
+    group: root
+
+- name: upgrade installed packages
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 3600
+    upgrade: "yes"
+
+- name: install apt packages    
+  ansible.builtin.apt:
+    state: present
+    name:  
+      - nfs-kernel-server
+
+- name: configure shares
+  ansible.builtin.copy:
+    src: exports
+    dest: /etc/exports
+    owner: root
+    group: root
+    mode: "0644"
+  register: exports
+
+- name: start nfs server
+  ansible.builtin.systemd:
+    name: nfs-kernel-server.service
+    state: restarted
+  when: exports.changed

@@ -1,0 +1,20 @@
+#cloud-config
+package_upgrade: true
+
+users:
+  - name: ossareh
+    gecos: Mike Ossareh
+    groups: sudo
+    shell: /bin/bash
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    ssh_authorized_keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBquT60s+aMwcvDbuX2Nvhcqzh+VOpNt369VWdwKvQlI ossareh@gmail.com
+
+preserve_hostname: false
+hostname: erisyondev
+manage_etc_hosts: true
+
+runcmd:
+  - [dhclient, -r]
+  - [dhclient]
+  

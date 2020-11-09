@@ -1,0 +1,6 @@
+---
+- hosts: erisyondev
+  become: yes
+  roles:
+    - erisyon
+
