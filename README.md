@@ -14,6 +14,7 @@ An ambitious attempt to completely control my home network with Ansible.
  * https://docs.ansible.com/ansible/latest/collections/ansible/builtin/user_module.html
  * https://docs.ansible.com/ansible/latest/collections/ansible/builtin/shell_module.html
  * https://docs.ansible.com/ansible/latest/collections/ansible/builtin/git_module.html
+ * https://docs.ansible.com/ansible/latest/collections/community/general/yarn_module.html
 
 # Interesting reading for next steps:
 

@@ -21,17 +21,14 @@
     owner: root
     group: root
 
-- name: upgrade installed packages
-  ansible.builtin.apt:
-    update_cache: yes
-    cache_valid_time: 3600
-    upgrade: "yes"
-
-- name: install apt packages    
+- name: install apt packages
   ansible.builtin.apt:
     state: present
-    name:  
+    update_cache: yes
+    cache_valid_time: 3600
+    name:
       - nfs-kernel-server
+      - ntp
 
 - name: configure shares
   ansible.builtin.copy:

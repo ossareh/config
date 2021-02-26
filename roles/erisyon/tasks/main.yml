@@ -32,12 +32,23 @@
     repo: deb https://dl.yarnpkg.com/debian/ stable main
     filename: yarn
 
-- name: install apt packages    
+# add key for kubectl repo
+- name: add apt key for kubectl repo
+  ansible.builtin.apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+
+# add kubectl repo
+- name: add yarn repo
+  ansible.builtin.apt_repository:
+    repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+    filename: kubectl
+
+- name: install apt packages
   ansible.builtin.apt:
     state: present
     update_cache: yes
     cache_valid_time: 3600
-    name:  
+    name:
       # updated kernel
       - linux-headers-5.8.0-23-generic
       - linux-image-5.8.0-23-generic
@@ -45,6 +56,7 @@
       # general
       - curl
       - nfs-common
+      - ntp
       - python3
       - python3-pip
       # for docker commmunity edition
@@ -56,20 +68,25 @@
       - libbz2-dev
       - libffi-dev
       - liblzma-dev
-      - libncurses5-dev 
+      - libncurses5-dev
       - libncursesw5-dev
       - libreadline-dev
-      - libsqlite3-dev 
+      - libsqlite3-dev
       - libssl-dev
-      - llvm 
+      - llvm
       - make
       - python-openssl
       - tk-dev
       - xz-utils
       - zlib1g-dev
-      # for old-vega dev
+      # for vega dev
       - nodejs
       - yarn
+      - ffmpeg
+      # dev general
+      - watchman
+      # erisyon/internal dev
+      - kubectl
 
 - name: setup docker apt key
   ansible.builtin.apt_key:
@@ -109,12 +126,13 @@
     name: ossareh
     comment: Mike Ossareh
     append: yes
-    groups: users,docker
+    # dialout group is necessary for xy-stage
+    groups: users,docker,dialout
 
 - name: check for nfs mount
   shell: df | grep ossareh/dev | wc -l
   register: nfs_mounted
-    
+
 - name: create dev mountpoint
   ansible.builtin.file:
     path: /home/ossareh/dev
@@ -137,5 +155,5 @@
 - name: setup max user watches (vscode)
   ansible.posix.sysctl:
     name: fs.inotify.max_user_watches
-    value: '524288'
+    value: "524288"
     sysctl_file: /etc/sysctl.d/99-erisyon.conf
