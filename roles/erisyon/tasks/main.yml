@@ -121,39 +121,3 @@
     state: restarted
   when: resolvconf.changed
 
-- name: create ossareh user
-  ansible.builtin.user:
-    name: ossareh
-    comment: Mike Ossareh
-    append: yes
-    # dialout group is necessary for xy-stage
-    groups: users,docker,dialout
-
-- name: check for nfs mount
-  shell: df | grep ossareh/dev | wc -l
-  register: nfs_mounted
-
-- name: create dev mountpoint
-  ansible.builtin.file:
-    path: /home/ossareh/dev
-    state: directory
-    mode: "0755"
-    owner: ossareh
-    group: ossareh
-  register: mountpoint
-  when: nfs_mounted.stdout == "0"
-
-- name: Mount an NFS volume
-  ansible.posix.mount:
-    src: devfs:/srv/ossareh
-    path: /home/ossareh/dev
-    opts: rw,sync,hard,intr,user,exec
-    state: mounted
-    fstype: nfs
-  when: mountpoint.changed or nfs_mounted.stdout == "0"
-
-- name: setup max user watches (vscode)
-  ansible.posix.sysctl:
-    name: fs.inotify.max_user_watches
-    value: "524288"
-    sysctl_file: /etc/sysctl.d/99-erisyon.conf
