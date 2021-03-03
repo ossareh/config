@@ -1,9 +1,44 @@
 ---
+- name: create user
+  become: yes
+  ansible.builtin.user:
+    name: ossareh
+    comment: Mike Ossareh
+    append: yes
+    groups: users,docker
+
+- name: check for nfs mount
+  shell: df | grep ossareh/dev | wc -l
+  register: nfs_mounted
+
+- name: conditionally create nfs mount point
+  become: yes
+  ansible.builtin.file:
+    path: /home/ossareh/dev
+    state: directory
+    mode: "0755"
+    owner: ossareh
+    group: ossareh
+  register: mountpoint
+  when: nfs_mounted.stdout == "0"
+
+- name: mount nfs mount
+  become: yes
+  ansible.posix.mount:
+    src: devfs:/srv/ossareh
+    path: /home/ossareh/dev
+    opts: rw,sync,hard,intr,user,exec
+    state: mounted
+    fstype: nfs
+  when: mountpoint.changed or nfs_mounted.stdout == "0"
+
 - name: neovim ppa
+  become: yes
   ansible.builtin.apt_repository:
     repo: ppa:neovim-ppa/stable
 
 - name: install packages
+  become: yes
   ansible.builtin.apt:
     update_cache: yes
     cache_valid_time: 3600
@@ -16,40 +51,12 @@
       - neovim
 
 - name: upgrade packages
+  become: yes
   ansible.builtin.apt:
     upgrade: safe
 
-- name: create user
-  ansible.builtin.user:
-    name: ossareh
-    comment: Mike Ossareh
-    append: yes
-    groups: users,docker
-
-- name: check for nfs mount
-  shell: df | grep ossareh/dev | wc -l
-  register: nfs_mounted
-
-- name: conditionally create nfs mount point
-  ansible.builtin.file:
-    path: /home/ossareh/dev
-    state: directory
-    mode: "0755"
-    owner: ossareh
-    group: ossareh
-  register: mountpoint
-  when: nfs_mounted.stdout == "0"
-
-- name: mount nfs mount
-  ansible.posix.mount:
-    src: devfs:/srv/ossareh
-    path: /home/ossareh/dev
-    opts: rw,sync,hard,intr,user,exec
-    state: mounted
-    fstype: nfs
-  when: mountpoint.changed or nfs_mounted.stdout == "0"
-
 - name: vscode max file watcher
+  become: yes
   ansible.posix.sysctl:
     name: fs.inotify.max_user_watches
     value: "524288"
@@ -63,8 +70,9 @@
     owner: ossareh
     group: ossareh
   loop:
+    - "/home/ossareh/.tmux/plugins"
     - "/home/ossareh/.config/nvim"
-    - "/home/ossareh/.local/share/nvim/site/autoreload"
+    - "/home/ossareh/.local/share/nvim/site/autoload"
 
 - name: configure dotfiles
   ansible.builtin.copy:
@@ -85,3 +93,12 @@
 - name: install vim plugins
   ansible.builtin.command:
     cmd: nvim +PlugInstall +qall
+
+- name: install tmux plugin manager
+  ansible.builtin.git:
+    repo: https://github.com/tmux-plugins/tpm
+    dest: /home/ossareh/.tmux/plugins/tpm
+
+- name: install tmux plugins
+  ansible.builtin.command:
+    cmd: /home/ossareh/.tmux/plugins/tpm/bin/install_plugins

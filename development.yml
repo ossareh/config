@@ -1,7 +1,11 @@
 ---
-- hosts: erisyondev
+- name: setup development host
+  hosts: erisyondev
   become: yes
   roles:
     - erisyon
-    - ossareh
 
+- name: setup ossareh environment
+  hosts: erisyondev
+  roles:
+    - ossareh
