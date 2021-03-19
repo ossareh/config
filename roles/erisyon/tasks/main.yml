@@ -53,6 +53,8 @@
       - linux-headers-5.8.0-23-generic
       - linux-image-5.8.0-23-generic
       - linux-modules-5.8.0-23-generic
+      # things like kernel module for usbserial (not included in our cloudimg)
+      - linux-modules-extra-5.8.0-23-generic
       # general
       - curl
       - nfs-common
@@ -87,6 +89,13 @@
       - watchman
       # erisyon/internal dev
       - kubectl
+
+- name: remove snapd
+  ansible.builtin.apt:
+    state: absent
+    purge: yes
+    name:
+      - snapd
 
 - name: setup docker apt key
   ansible.builtin.apt_key:

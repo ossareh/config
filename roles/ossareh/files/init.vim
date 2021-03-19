@@ -16,8 +16,8 @@ Plug 'sheerun/vim-polyglot'
 Plug 'ghifarit53/tokyonight-vim'
 
 " development plugins
-Plug 'psf/black'
-
+Plug 'psf/black', { 'branch': 'stable' }
+Plug 'fisadev/vim-isort'
 Plug 'prabirshrestha/vim-lsp'
 Plug 'mattn/vim-lsp-settings'
 Plug 'SirVer/ultisnips'
@@ -26,10 +26,25 @@ Plug 'thomasfaingnaert/vim-lsp-snippets'
 Plug 'thomasfaingnaert/vim-lsp-ultisnips'
 Plug 'prabirshrestha/asyncomplete.vim'
 Plug 'prabirshrestha/asyncomplete-lsp.vim'
+Plug 'prettier/vim-prettier', {
+    \ 'do': 'yarn install',
+    \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss', 'json', 'graphql', 'markdown', 'yaml', 'html'] }
 
 " List ends here. Plugins become visible to Vim after this call.
 call plug#end()
 
+" general editor config
+set autoread
+set tabstop=4       " number of visual spaces per TAB
+set softtabstop=4   " number of spaces in tab when editing
+set shiftwidth=4    " number of spaces to use for autoindent
+set expandtab       " tabs are space
+set autoindent
+set copyindent
+set listchars=tab:>\ ,trail:-,nbsp:+,space:·
+set list
+
+" theme setup
 set termguicolors
 
 let g:tokyonight_style = 'night'
@@ -62,3 +77,8 @@ inoremap <expr> <cr>    pumvisible() ? asyncomplete#close_popup() : "\<cr>"
 let g:UltiSnipsExpandTrigger="<tab>"
 let g:UltiSnipsJumpForwardTrigger="<tab>"
 let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
+
+" on save actions
+autocmd BufWritePre *.py execute ':Black'
+autocmd BufWritePre *.py execute ':Isort'
+autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.graphql,*.md,*.yaml,*.html PrettierAsync
