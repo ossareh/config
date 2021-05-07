@@ -43,6 +43,17 @@
     repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
     filename: kubectl
 
+# add packagecloud gpg key; needed for git-lfs
+- name: add packagecloud gpg
+  ansible.builtin.apt_key:
+    url: https://packagecloud.io/github/git-lfs/gpgkey
+
+# packagecloud repo with gitlfs in it
+- name: add packagecloud repo
+  ansible.builtin.apt_repository:
+    repo: deb https://packagecloud.io/github/git-lfs/ubuntu/ focal main
+    filename: packagecloud
+
 - name: install apt packages
   ansible.builtin.apt:
     state: present
@@ -50,17 +61,19 @@
     cache_valid_time: 3600
     name:
       # updated kernel
-      - linux-headers-5.8.0-23-generic
-      - linux-image-5.8.0-23-generic
-      - linux-modules-5.8.0-23-generic
+      - linux-headers-5.8.0-48-generic
+      - linux-image-5.8.0-48-generic
+      - linux-modules-5.8.0-48-generic
       # things like kernel module for usbserial (not included in our cloudimg)
-      - linux-modules-extra-5.8.0-23-generic
+      - linux-modules-extra-5.8.0-48-generic
       # general
       - curl
       - nfs-common
       - ntp
       - python3
       - python3-pip
+      - git
+      - git-lfs
       # for docker commmunity edition
       - apt-transport-https
       - ca-certificates

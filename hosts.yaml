@@ -4,3 +4,5 @@ all:
       ansible_user: ossareh
     devfs:
       ansible_user: root
+    razor:
+      ansible_user: ossareh
