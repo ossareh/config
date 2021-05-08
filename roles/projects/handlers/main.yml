@@ -1,2 +1,6 @@
 ---
-# handlers file for vega
+- name: restart ssh
+  become: yes
+  ansible.builtin.service:
+    name: ssh
+    state: restarted

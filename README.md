@@ -41,3 +41,15 @@ poetry run ansible-playbook development.yml --check --ask-become-pass
 # install galaxy things
 poetry run ansible-galaxy install -r requirements.yaml
 ```
+
+## Tags
+
+|     tag name      | notes                                     |
+| :---------------: | ----------------------------------------- |
+|  `ssh/password`   | disables password auth over ssh           |
+| `projects/common` | installs common tools related to projects |
+|  `users/ossareh`  | creates the ossareh user                  |
+
+## Debugging
+
+Use the `-v` flag to `ansible-playbook` to see what's happening when things don't work

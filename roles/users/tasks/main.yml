@@ -2,4 +2,4 @@
 - name: setup ossareh
   ansible.builtin.import_tasks: ossareh.yml
   tags:
-    - ossareh
+    - users/ossareh
