@@ -7,8 +7,16 @@
     - users
   tags:
     - projects/common
-    - ssh/nopasswd
+    - projects/ssh/nopasswd
     - users/ossareh
+
+- name: ossarehs vega development hosts
+  hosts:
+    - devnuc
+  roles:
+    - projects
+  tags:
+    - projects/vega
 
 # - name: setup development host
 #   hosts:

@@ -1,2 +1,15 @@
 ---
-# vars file for vega
+vega_groups:
+  - dialout
+  - users
+
+# this should really live at the playbook level, however it seems
+# there is odd merging at play. Specifying this variable at the playbook
+# level (as part of the role invocation) results in being overriden by
+# this file's lack of it being defined.
+#
+# honestly, this seems like I'm probably making a mistake, but I have
+# spent too long on this problem at this point.
+# Docs are here: https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html#defining-variables-at-runtime
+vega_users:
+  - ossareh

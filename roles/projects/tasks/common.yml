@@ -1,41 +1,9 @@
 ---
-- name: install common packages
-  become: yes
-  ansible.builtin.apt:
-    state: present
-    update_cache: yes
-    cache_valid_time: 3600
-    name:
-      - curl
-      - python3
-      - python3-pip
-      - git
+- name: common packages
+  ansible.builtin.import_tasks: common/packages.yml
 
-- name: grant sudoers sudoer without pw
-  become: yes
-  ansible.builtin.lineinfile:
-    path: /etc/sudoers
-    regexp: '^%sudo +ALL='
-    line: '%sudo ALL=(ALL) NOPASSWD: ALL'
-    validate: /usr/sbin/visudo -cf %s
+- name: setup sudo permissions
+  ansible.builtin.import_tasks: common/sudo.yml
 
-- name: sshd local bind unlike; removes forwarded sockets on d/c
-  become: yes
-  ansible.builtin.lineinfile:
-    path: /etc/ssh/sshd_config
-    line: StreamLocalBindUnlink yes
-
-- name: disable password login
-  become: yes
-  ansible.builtin.lineinfile:
-    path: /etc/ssh/sshd_config
-    regexp: "^{{ item.key }}"
-    line: "{{ item.key }} {{ item.value }}"
-    validate: '/usr/sbin/sshd -T -f %s'
-  loop:
-    - { key: "PermitRootLogin", value: "no" }
-    - { key: "PasswordAuthentication", value: "no" }
-  notify:
-    - restart ssh
-  tags:
-    - ssh/nopasswd
+- name: setup secure ssh
+  ansible.builtin.import_tasks: common/ssh.yml

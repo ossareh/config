@@ -1,0 +1,45 @@
+---
+- name: common development tools
+  ansible.builtin.import_tasks: common/build.yml
+
+# add key for nodesource repo
+- name: add apt key for nodesource repo
+  ansible.builtin.apt_key:
+    url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+
+# add node source repo
+- name: add nodesource repo
+  ansible.builtin.apt_repository:
+    repo: deb https://deb.nodesource.com/node_14.x focal main
+    filename: yarn
+
+# add key for yarn repo
+- name: add apt key for yarn repo
+  ansible.builtin.apt_key:
+    url: https://dl.yarnpkg.com/debian/pubkey.gpg
+
+# add yarn repo
+- name: add yarn repo
+  ansible.builtin.apt_repository:
+    repo: deb https://dl.yarnpkg.com/debian/ stable main
+    filename: yarn
+
+- name: install apt packages
+  ansible.builtin.apt:
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+    name:
+      # updated kernel
+      - linux-headers-5.8.0-50-generic
+      - linux-image-5.8.0-50-generic
+      - linux-modules-5.8.0-50-generic
+      # things like kernel module for usbserial (not included in our cloudimg)
+      - linux-modules-extra-5.8.0-50-generic
+      - git-lfs
+      - nodejs
+      - yarn
+      - ffmpeg
+
+- name: groups for vega
+  ansible.builtin.import_tasks: vega/users.yml

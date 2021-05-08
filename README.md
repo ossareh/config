@@ -44,11 +44,19 @@ poetry run ansible-galaxy install -r requirements.yaml
 
 ## Tags
 
-|     tag name      | notes                                     |
-| :---------------: | ----------------------------------------- |
-|  `ssh/password`   | disables password auth over ssh           |
-| `projects/common` | installs common tools related to projects |
-|  `users/ossareh`  | creates the ossareh user                  |
+|        tag name         | notes                                     |
+| :---------------------: | ----------------------------------------- |
+| `projects/ssh/password` | disables password auth over ssh           |
+|    `projects/common`    | installs common tools related to projects |
+|     `users/ossareh`     | creates the ossareh user                  |
+
+### Tag Naming
+
+Format: `<role name>/<arbtirary>`.
+
+Keep the role name the same as the role so that it's feasible to trace where a tag is defined, don't worry about duplicating tag notions if something has to span multiple roles; i.e. `users/vega_user` `projects/vega_user` is just fine if `vega_user` means something common across both projects.
+
+Remember: no dogma! if it turns out this feels icky come up with something better :)
 
 ## Debugging
 

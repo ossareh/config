@@ -1,0 +1,13 @@
+---
+- name: ensure groups exist
+  ansible.builtin.group:
+    name: "{{ item }}"
+  loop: "{{ vega_groups }}"
+
+- name: add users to groups
+  ansible.builtin.user:
+    append: yes
+    groups: "{{ vega_groups }}"
+    name: "{{ item }}"
+  loop: "{{ vega_users }}"
+

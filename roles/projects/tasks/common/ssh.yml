@@ -1,0 +1,19 @@
+---
+- name: sshd local bind unlike; removes forwarded sockets on d/c
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    line: StreamLocalBindUnlink yes
+
+- name: disable password login
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^{{ item.key }}"
+    line: "{{ item.key }} {{ item.value }}"
+    validate: "/usr/sbin/sshd -T -f %s"
+  loop:
+    - { key: "PermitRootLogin", value: "no" }
+    - { key: "PasswordAuthentication", value: "no" }
+  notify:
+    - restart ssh
+  tags:
+    - projects/ssh/nopasswd
