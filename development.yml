@@ -1,4 +1,14 @@
 ---
+- name: devnet ossareh development hosts
+  hosts:
+    - devnuc
+  roles:
+    - projects
+    - users
+  tags:
+    - projects/common
+    - ossareh
+
 # - name: setup development host
 #   hosts:
 #     - erisyondev

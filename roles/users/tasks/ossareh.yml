@@ -1,0 +1,118 @@
+---
+- name: root actions
+  become: yes
+  block:
+    - name: create user
+      ansible.builtin.user:
+        name: ossareh
+        comment: Mike Ossareh
+        append: yes
+        groups: sudo
+        shell: /bin/bash
+
+    - name: neovim ppa
+      ansible.builtin.apt_repository:
+        repo: ppa:neovim-ppa/stable
+
+    - name: install packages
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600
+        state: present
+        name:
+          - python3
+          - python3-dev
+          - python3-pip
+          - tmux
+          - neovim
+
+    - name: upgrade packages
+      ansible.builtin.apt:
+        upgrade: safe
+
+- name: ossareh actions
+  become: yes
+  become_user: ossareh
+  block:
+    - name: setup ssh directory
+      ansible.builtin.file:
+        path: "/home/ossareh/.ssh"
+        state: directory
+        mode: "0700"
+        owner: ossareh
+        group: ossareh
+
+    - name: copy ssh key
+      ansible.builtin.copy:
+        src: ossareh/ssh.pub
+        dest: "/home/ossareh/.ssh/authorized_keys"
+        mode: "0644"
+        owner: ossareh
+        group: ossareh
+
+    - name: ensure directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0755"
+        owner: ossareh
+        group: ossareh
+      loop:
+        - "/home/ossareh/.tmux/plugins"
+        - "/home/ossareh/.config/nvim"
+        - "/home/ossareh/.local/share/nvim/site/autoload"
+
+    - name: configure dotfiles
+      ansible.builtin.copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: ossareh
+        group: ossareh
+        mode: "0644"
+      loop:
+        - { src: "ossareh/tmux.conf", dest: "/home/ossareh/.tmux.conf" }
+        - { src: "ossareh/init.vim", dest: "/home/ossareh/.config/nvim/init.vim" }
+
+    - name: install nvim plugin manager
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+        dest: /home/ossareh/.local/share/nvim/site/autoload/plug.vim
+
+    - name: install vim plugins
+      ansible.builtin.command:
+        cmd: nvim +PlugInstall +qall
+
+    - name: install tmux plugin manager
+      ansible.builtin.git:
+        repo: https://github.com/tmux-plugins/tpm
+        dest: /home/ossareh/.tmux/plugins/tpm
+
+    - name: install tmux plugins
+      ansible.builtin.command:
+        cmd: /home/ossareh/.tmux/plugins/tpm/bin/install_plugins
+
+    - name: setup ssh directory
+      ansible.builtin.file:
+        path: "/home/ossareh/.ssh"
+        state: directory
+        mode: "0700"
+        owner: ossareh
+        group: ossareh
+
+    - name: enable gpg-agent
+      ansible.builtin.lineinfile:
+        path: /home/ossareh/.gnupg/gpg.conf
+        line: use-agent
+        create: yes
+        mode: "0600"
+
+    - name: git setup
+      community.general.git_config:
+        name: "{{ item.key }}"
+        value: "{{ item.value }}"
+        scope: global
+      loop:
+        - { key: "commit.gpgsign", value: "true" }
+        - { key: "user.email", value: "ossareh@gmail.com" }
+        - { key: "user.name", value: "P. Michael Ossareh" }
+
