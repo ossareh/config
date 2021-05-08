@@ -1,0 +1,5 @@
+---
+- name: add to devnet
+  ansible.builtin.import_tasks: devnet.yml
+  tags:
+    - zthost

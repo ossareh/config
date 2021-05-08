@@ -1,0 +1,50 @@
+---
+- name: copy resolv.conf
+  ansible.builtin.copy:
+    src: ossareh_resolv.conf
+    dest: /etc/resolv.conf
+    owner: root
+    group: root
+    mode: "0644"
+  register: resolvconf
+
+- name: restart systemd-resolvd
+  ansible.builtin.systemd:
+    name: systemd-resolved
+    state: restarted
+  when: resolvconf.changed
+
+- name: check if home dir exists
+  ansible.builtin.stat:
+    path: /home/ossareh
+  register: home_ossareh
+
+- name: exit if no ossareh_home
+  ansible.builtin.fail:
+    msg: the ossareh user does not exist
+  when: not home_ossareh.exists
+
+- name: check for nfs mount
+  shell: df | grep ossareh/dev | wc -l
+  register: nfs_mounted
+
+- name: create nfs mount point
+  become: yes
+  ansible.builtin.file:
+    path: /home/ossareh/dev
+    state: directory
+    mode: "0755"
+    owner: ossareh
+    group: ossareh
+  register: mountpoint
+  when: nfs_mounted.stdout == "0"
+
+- name: mount nfs mount
+  become: yes
+  ansible.posix.mount:
+    src: devfs:/srv/ossareh
+    path: /home/ossareh/dev
+    opts: rw,sync,hard,intr,user,exec
+    state: mounted
+    fstype: nfs
+  when: mountpoint.changed or nfs_mounted.stdout == "0"

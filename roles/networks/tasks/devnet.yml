@@ -1,0 +1,8 @@
+---
+- name: install zerotier
+  m4rcu5nl.zerotier-one:
+    zerotier_network_id: "{{ zerotier_network_id }}"
+    zerotier_member_register_short_hostname: devnuc
+    zerotier_member_ip_assignments: "{{ devnuc_zt_ip }}"
+    zerotier_api_accesstoken: "{{ zerotier_api_key }}"
+

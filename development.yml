@@ -1,15 +1,17 @@
 ---
-- name: setup development host
-  hosts:
-    - erisyondev
-    - razor
-  become: yes
-  roles:
-    - erisyon
+# - name: setup development host
+#   hosts:
+#     - erisyondev
+#     - razor
+#   become: yes
+#   roles:
+#     - erisyon
+#
+# - name: setup ossareh environment
+#   hosts:
+#     - erisyondev
+#     - razor
+#   roles:
+#     - ossareh
+#
 
-- name: setup ossareh environment
-  hosts:
-    - erisyondev
-    - razor
-  roles:
-    - ossareh

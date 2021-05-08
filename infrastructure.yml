@@ -1,5 +1,12 @@
 ---
-- hosts: devfs
+# TODO: migrate this to my network
+#- hosts: devfs
+#  roles:
+#   - file-server
+- hosts:
+    - devnuc
   roles:
-    - file-server
-  
+    - networks
+  tags:
+    - zthost
+
