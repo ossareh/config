@@ -1,5 +1,5 @@
 ---
-- name: sshd local bind unlike; removes forwarded sockets on d/c
+- name: sshd local bind unlink; removes forwarded sockets on d/c
   ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
     line: StreamLocalBindUnlink yes
