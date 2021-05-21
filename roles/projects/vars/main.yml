@@ -2,6 +2,12 @@
 vega_groups:
   - dialout
   - users
+  # for access to webcams during development
+  # TODO: move this to network role when they work
+  - video
+  # for access to system logs
+  # TODO: move this to network role when they work
+  - adm
 
 # this should really live at the playbook level, however it seems
 # there is odd merging at play. Specifying this variable at the playbook
