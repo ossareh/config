@@ -32,7 +32,6 @@
 
 - name: ossareh actions
   become: yes
-  become_user: ossareh
   block:
     - name: setup ssh directory
       ansible.builtin.file:
@@ -82,15 +81,15 @@
       ansible.builtin.command:
         cmd: nvim +PlugInstall +qall
 
-    - name: install tmux plugin manager
-      ansible.builtin.git:
-        repo: https://github.com/tmux-plugins/tpm
-        dest: /home/ossareh/.tmux/plugins/tpm
-
-    - name: install tmux plugins
-      ansible.builtin.command:
-        cmd: /home/ossareh/.tmux/plugins/tpm/bin/install_plugins
-
+#    - name: install tmux plugin manager
+#      ansible.builtin.git:
+#        repo: https://github.com/tmux-plugins/tpm
+#        dest: /home/ossareh/.tmux/plugins/tpm
+#
+#    - name: install tmux plugins
+#      ansible.builtin.command:
+#        cmd: /home/ossareh/.tmux/plugins/tpm/bin/install_plugins
+#
     - name: setup ssh directory
       ansible.builtin.file:
         path: "/home/ossareh/.ssh"

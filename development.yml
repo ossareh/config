@@ -2,6 +2,7 @@
 - name: devnet ossareh development hosts
   hosts:
     - devnuc
+    - goble
   roles:
     - projects
     - users
@@ -13,6 +14,7 @@
 - name: ossarehs vega development hosts
   hosts:
     - devnuc
+    - goble
   roles:
     - projects
   tags:
